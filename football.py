@@ -23,61 +23,19 @@ def pair_players():
 		player_list.append(player)
 	player_list_lenght = len(player_list)+1
 	#print(player_list)
-	for pairs in range(int(player_list_lenght/2)):
-		player1 = player_list[randint(0, len(player_list)-1)]
-		player_list.remove(player1)
-		player2 = player_list[randint(0, len(player_list)-1)]
-		player_list.remove(player2)
-		print(player1, "vs", player2)
-		if randint(0, 10) >= randint(0, 10):
-			player_list.append(player1)
-		else:
-			player_list.append(player2)
-	print()
-	for pairs in range(int(player_list_lenght / 4)):
-		player1 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player1)
-		player2 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player2)
-		print(player1, "vs", player2)
-		if randint(0, 10) >= randint(0, 10):
-			player_list.append(player1)
-		else:
-			player_list.append(player2)
-	print()
-	for pairs in range(int(player_list_lenght / 8)):
-		player1 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player1)
-		player2 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player2)
-		print(player1, "vs", player2)
-		if randint(0, 10) >= randint(0, 10):
-			player_list.append(player1)
-		else:
-			player_list.append(player2)
-	print()
-	for pairs in range(int(player_list_lenght / 16)):
-		player1 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player1)
-		player2 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player2)
-		print(player1, "vs", player2)
-		if randint(0, 10) >= randint(0, 10):
-			player_list.append(player1)
-		else:
-			player_list.append(player2)
-	print()
-	for pairs in range(int(player_list_lenght / 32)):
-		player1 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player1)
-		player2 = player_list[randint(0, len(player_list) - 1)]
-		player_list.remove(player2)
-		print(player1, "vs", player2)
-		if randint(0, 10) >= randint(0, 10):
-			player_list.append(player1)
-		else:
-			player_list.append(player2)
-	print(player_list)
+	for loop in range(2, 6):
+		for pairs in range(int(player_list_lenght / (2**loop))):
+			player1 = player_list[randint(0, len(player_list) - 1)]
+			player_list.remove(player1)
+			player2 = player_list[randint(0, len(player_list) - 1)]
+			player_list.remove(player2)
+			print(player1, "vs", player2)
+			if randint(0, 10) >= randint(0, 10):
+				player_list.append(player1)
+			else:
+				player_list.append(player2)
+			print(player_list)
+		print()
 
 def main():
 	initialize_database()
