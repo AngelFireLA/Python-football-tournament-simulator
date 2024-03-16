@@ -1,4 +1,5 @@
 import random
+import time
 import tkinter as tk
 
 import pandas as pd
@@ -32,16 +33,16 @@ def initialize_database():
     global df_players_goals
     global goals_scored
     players = \
-        pd.read_csv('football23(1) - Copy.csv', header=None, dtype={0: str}).dropna().set_index(0).squeeze().to_dict()[
+        pd.read_csv('football23(1).csv', header=None, dtype={0: str}).dropna().set_index(0).squeeze().to_dict()[
             season+1]
 
     players.pop('names')
     goals_scored = \
-        pd.read_csv('football23(1)- goals - Copie.csv', header=None, dtype={0: str}).dropna().set_index(0).squeeze().to_dict()[
+        pd.read_csv('football23(1)- goals.csv', header=None, dtype={0: str}).dropna().set_index(0).squeeze().to_dict()[
             season]
 
-    df_players = pd.read_csv('football23(1) - Copy.csv')
-    df_players_goals = pd.read_csv('football23(1)- goals - Copie.csv')
+    df_players = pd.read_csv('football23(1).csv')
+    df_players_goals = pd.read_csv('football23(1)- goals.csv')
     if not "Saison "+ str(season+1) in df_players.columns:
         df_players.insert(len(df_players.columns), "Saison "+ str(season+1), 1, False)
     if not "Saison "+ str(season+1) in df_players_goals.columns:
@@ -119,7 +120,7 @@ def simulate_match(p1, p2, draw=True, is_group_match=False, group_number=-1):
     global scored
     global goal_difference
     global group_match_results
-    but1, but2 = generate_match_score(getPlayerRating(p1), getPlayerRating(p2))
+    but1, but2 = simulate_score(getPlayerRating(p1), getPlayerRating(p2))
     if but1 > but2:
         winner = p1
         loser = p2
@@ -132,7 +133,7 @@ def simulate_match(p1, p2, draw=True, is_group_match=False, group_number=-1):
             loser = (p1, p2)
         else:
             while but1 == but2:
-                but1, but2 = generate_match_score(getPlayerRating(p1), getPlayerRating(p2))
+                but1, but2 = simulate_score(getPlayerRating(p1), getPlayerRating(p2))
                 if but1 > but2:
                     winner = p1
                     loser = p2
@@ -180,6 +181,39 @@ def simulate_match(p1, p2, draw=True, is_group_match=False, group_number=-1):
     return winner, loser
 
 
+import numpy as np
+
+
+def simulate_score(rating_team_a, rating_team_b):
+    rating_team_a = max(min(rating_team_a, 99), 50)
+    rating_team_b = max(min(rating_team_b, 99), 50)
+    # Base lambda for an average team rating (set in the middle of the rating scale, around 75)
+    base_lambda = 1.5
+
+    # Adjust lambda based on team ratings
+    # The lambda for each team starts from the base and is adjusted by their rating difference from the average
+    lambda_a = base_lambda * (rating_team_a / 75)
+    lambda_b = base_lambda * (rating_team_b / 75)
+
+    # Adjust further based on the difference in ratings between the teams
+    # The idea is to slightly increase the scoring rate of the stronger team and decrease for the weaker team
+    rating_difference = rating_team_a - rating_team_b
+    lambda_a_adjustment = rating_difference * 0.01  # 0.01 is a factor to adjust the influence
+    lambda_b_adjustment = -lambda_a_adjustment  # Opposite adjustment for the other team
+
+    lambda_a += lambda_a_adjustment
+    lambda_b += lambda_b_adjustment
+
+    # Ensure lambda values are positive
+    lambda_a = max(0, lambda_a)
+    lambda_b = max(0, lambda_b)
+
+    # Generate match score using Poisson distribution for each team
+    score_team_a = np.random.poisson(lambda_a)
+    score_team_b = np.random.poisson(lambda_b)
+
+    return score_team_a, score_team_b
+
 def simulate_groups():
     global groups_standings, groups_calendar
     for i, group in groups.items():
@@ -200,17 +234,17 @@ def simulate_groups():
     groups_standings = sort_groups(groups_standings)
 
 
-def generate_match_score(team_a_rating, team_b_rating):
-    def score_from_rating(rating):
-        weights = [2, 3, 5, 10, 7, 4, 1]
-        scores = [0, 1, 2, 3, 4, 5, 6]
-        adj_rating = (rating - 50) / 40
-        score_prob = [max(min(x*(1 - adj_rating) + x*adj_rating, 10), 1) for x in weights]
-        return random.choices(scores, weights=score_prob, k=1)[0]
-
-    team_a_score = score_from_rating(team_a_rating)
-    team_b_score = score_from_rating(team_b_rating)
-    return team_a_score, team_b_score
+# def generate_match_score(team_a_rating, team_b_rating):
+#     def score_from_rating(rating):
+#         weights = [2, 3, 5, 10, 7, 4, 1]
+#         scores = [0, 1, 2, 3, 4, 5, 6]
+#         adj_rating = (rating - 50) / 40
+#         score_prob = [max(min(x*(1 - adj_rating) + x*adj_rating, 10), 1) for x in weights]
+#         return random.choices(scores, weights=score_prob, k=1)[0]
+#
+#     team_a_score = score_from_rating(team_a_rating)
+#     team_b_score = score_from_rating(team_b_rating)
+#     return team_a_score, team_b_score
 
 
 def sort_groups(standings):
@@ -349,10 +383,10 @@ def complete_simulation():
     #     print(f'{i + 1}. {list(goal_difference.items())[i]}')
 
     for player, goals in scored.items():
-        print(player, getPlayerGoals(player) + goals)
+        #print(player, getPlayerGoals(player) + goals)
         changeGoals(season, player, getPlayerGoals(player) + goals)
 
-    df_players_goals.to_csv('football23(1)- goals - Copie.csv', index=False)
+    df_players_goals.to_csv('football23(1)- goals.csv', index=False)
 
     for player in eliminated_groups:
         changeRating(season + 1, player, getPlayerRating(player) - 1)
@@ -383,7 +417,7 @@ def complete_simulation():
         if player not in players_changed:
             changeRating(season + 1, player, getPlayerRating(player))
             players_changed.append(player)
-    df_players.to_csv('football23(1) - Copy.csv', index=False)
+    df_players.to_csv('football23(1).csv', index=False)
     season+=1
 
 
@@ -464,7 +498,7 @@ def sim_knockouts_button():
                 for player in stage:
                     changeRating(season + 1, player, getPlayerRating(player) + knockouts_ratings[h])
                     players_changed.append(player)
-        print(f"winner is {qualified[0]}")
+        #print(f"winner is {qualified[0]}")
         changeRating(season+1, qualified[0], getPlayerRating(qualified[0])+3)
         players_changed.append(qualified[0])
         o = 0
@@ -526,8 +560,10 @@ import pstats
 # stats.sort_stats(pstats.SortKey.TIME)
 # stats.print_stats()
 
-for i in range(10):
+for i in range(1000):
+    start_time = time.time()
     complete_simulation()
+    print(i, time.time()-start_time)
 
 # complete_simulation()
 #root.mainloop()
