@@ -1,3 +1,41 @@
 
 *.xml
 /.idea
+player_ratings/A. Davies_elo_ratings.png
+player_ratings/A. Tchouaméni_elo_ratings.png
+player_ratings/Ansu Fati_elo_ratings.png
+player_ratings/Antony_elo_ratings.png
+player_ratings/B. Saka_elo_ratings.png
+player_ratings/D. Vlahović_elo_ratings.png
+player_ratings/E. Camavinga_elo_ratings.png
+player_ratings/E. Haaland_elo_ratings.png
+player_ratings/E. Smith Rowe_elo_ratings.png
+player_ratings/F. Wirtz_elo_ratings.png
+player_ratings/Ferran Torres_elo_ratings.png
+player_ratings/J. Bellingham_elo_ratings.png
+player_ratings/J. Gvardiol_elo_ratings.png
+player_ratings/J. Musiala_elo_ratings.png
+player_ratings/J. Sancho_elo_ratings.png
+player_ratings/J. Timber_elo_ratings.png
+player_ratings/João Félix_elo_ratings.png
+player_ratings/M. de Ligt_elo_ratings.png
+player_ratings/M. Diaby_elo_ratings.png
+player_ratings/Moleiro_elo_ratings.png
+player_ratings/N. Schlotterbeck_elo_ratings.png
+player_ratings/N. Zaniolo_elo_ratings.png
+player_ratings/Nuno Mendes_elo_ratings.png
+player_ratings/P. Foden_elo_ratings.png
+player_ratings/Pedri_elo_ratings.png
+player_ratings/R. Gravenberch_elo_ratings.png
+player_ratings/R. James_elo_ratings.png
+player_ratings/Rodrygo_elo_ratings.png
+player_ratings/S. Tonali_elo_ratings.png
+player_ratings/Vinícius Jr._elo_ratings.png
+player_ratings/Vitinha_elo_ratings.png
+player_ratings/W. Saliba_elo_ratings.png
+test.csv
+test2.csv
+total_ratings_over_time.png
+updated_players.csv
+updated_season_3.csv
+test.py
