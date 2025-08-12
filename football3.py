@@ -18,7 +18,6 @@ def load_season_data(season, df):
 def update_season_data_in_memory(df, modified_data, new_season):
     """ Update the DataFrame in memory with new season data, without exporting to CSV. """
     season_col = f"Saison {new_season}"
-    # Append new season data directly
     df[season_col] = df[df.columns[0]].map(modified_data)
 
 def create_rating_changes_dict(numbers):
@@ -29,7 +28,7 @@ def create_rating_changes_dict(numbers):
     """
     sorted_numbers = sorted(numbers)
     offset = 1
-    mid = len(sorted_numbers) // 2 + offset  # Adjust mid to be one step towards the start for zero
+    mid = len(sorted_numbers) // 2 + offset
     return {num: mid - i for i, num in enumerate(sorted_numbers)}
 
 def min(a, b):
@@ -39,7 +38,7 @@ def max(a, b):
     return a if a > b else b
 
 score_probabilities = {}
-for rating in range(-10000, 10000):  # Assuming ratings are clamped between 50 and 99
+for rating in range(-10000, 10000):
     adj_rating = (rating - 50) / 40
     weights = [2, 3, 5, 10, 7, 4, 1]
     score_prob = [max(min(x * (1 - adj_rating) + x * adj_rating, 10), 1) for x in weights]
@@ -100,7 +99,7 @@ class Tournament:
         self.generate_groups(players_per_group)
         self.generate_group_calendar(number_of_encounters)
         self.simulate_groups()
-        #repeat simulating knockouts
+
         for round in list(self.rankings_per_round.keys())[1:-1]:
             self.current_round = round
             round_matches = self.generate_knockout_matches()
@@ -117,9 +116,7 @@ class Tournament:
         matches = list(zip(self.remaining_players[::2], self.remaining_players[1::2]))
         return matches
 
-    # For instance, refactor simulate_knockout_round to use pre-fetched data
     def simulate_knockout_round(self, round_matches):
-        # Pre-fetch ratings for all players
         ratings = {player: self.current_players_data[player] for player in self.remaining_players}
 
         self.remaining_players = []
@@ -141,20 +138,11 @@ class Tournament:
         rating_changes_dict = create_rating_changes_dict(list(self.rankings_per_round.keys()))
         rating_changes_dict[1]+=1
 
-        # print(rating_changes_dict)
-        # distribution = 0 #get's the amount of total points gained across a season for all players, optimally it's 0 or low
-        # for k, v in rating_changes_dict.items():
-        #     distribution += v*ceil(k/2)
-        # print(distribution)
-
-
-        rating_total = 0
         for player in self.participants:
             self.current_players_data[player] += rating_changes_dict[self.players_ranking[player]]
             if self.limit_ratings_in_file:
                 self.current_players_data[player] = max(min(self.current_players_data[player], 99), 50)
-            rating_total+=rating_changes_dict[self.players_ranking[player]]
-        #print(rating_total)
+
     def eliminate_player(self, player):
         self.players_ranking[player] = self.current_round
         self.rankings_per_round[self.current_round].append(player)
@@ -164,7 +152,6 @@ class Tournament:
             self.current_goals_data[player] += self.scored_goals[player]
 
     def update_stats(self, player1, player2, scores):
-        # scores is [score1, score2]
         self.scored_goals[player1] += scores[0]
         self.scored_goals[player2] += scores[1]
 
@@ -233,32 +220,31 @@ class Tournament:
             for player in players_ranked[self.players_qualified_per_group:]:
                 self.eliminate_player(player)
 
-players_file = "test.csv"
-goals_file = "test2.csv"
+players_file = "players.csv"
+goals_file = "goals.csv"
 
 #reset test.csv and test2.csv
 #delet test.csv
-os.remove(players_file)
+if os.path.exists(players_file):
+    os.remove(players_file)
 #copy football23(1).csv as test.csv
-shutil.copyfile("football23(1).csv", players_file)
+shutil.copyfile("players - clean.csv", players_file)
 
 #repeat for football23(1)- goals - clean.csv
-os.remove(goals_file)
-shutil.copyfile("football23(1)- goals - clean.csv", goals_file)
+if os.path.exists(goals_file):
+    os.remove(goals_file)
+shutil.copyfile("goals - clean.csv", goals_file)
 
 
 # Create an instance with the data loaded
-tournament = Tournament(players_file, goals_file, 2, limit_ratings_in_practise=False, limit_ratings_in_file=False)
+tournament = Tournament(players_file, goals_file, 0, limit_ratings_in_practise=False, limit_ratings_in_file=False)
 
-# import cProfile
-# import pstats
-# with cProfile.Profile() as pr:
+
 new_players_data = {}
 new_goals_data = {}
 
-# Inside the cProfile block, modify to accumulate data in dictionaries:
-for i in range(100000):
-    #print(i)
+start_time = time.time()
+for i in range(10000):
     tournament.start_tournament()
     tournament.run_tournament(4, 2)
     tournament.current_season += 1
@@ -268,7 +254,6 @@ for i in range(100000):
     new_goals_data[new_season_col] = tournament.goals_df[tournament.goals_df.columns[0]].map(
         tournament.current_goals_data)
 
-# Convert dictionaries to DataFrames and concatenate them to the original DataFrames
 players_new_season_df = pd.DataFrame(new_players_data)
 goals_new_season_df = pd.DataFrame(new_goals_data)
 
@@ -279,7 +264,6 @@ tournament.goals_df = pd.concat([tournament.goals_df, goals_new_season_df], axis
 tournament.players_df.to_csv(players_file, index=False)
 tournament.goals_df.to_csv(goals_file, index=False)
 
-# stats = pstats.Stats(pr)
-# stats.sort_stats(pstats.SortKey.TIME)
-# stats.print_stats()
+print(time.time()-start_time)
+
 

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-players_file = "test.csv"
+players_file = "players.csv"
 
 # Assuming 'tournament.players_df' is your DataFrame with players as rows and seasons as columns
 players_df = pd.read_csv(players_file)
@@ -17,7 +17,7 @@ os.makedirs(output_dir, exist_ok=True)
 
 # Iterate over each column (player) to plot their ratings over seasons
 for player in transposed_df.columns:
-    transposed_df[player].plot(title=f'ELO Ratings Over Time for {player}')
+    transposed_df[player].plot(title=f'Overall Rating Over Time for {player}')
     plt.xlabel('Season')
     plt.ylabel('ELO Rating')
     player_name = player.replace("/", " ")
